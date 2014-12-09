@@ -35,7 +35,8 @@ class JobListingController extends BaseController
    * Save Form Entry
    */
   public function actionSaveListing()
-  {
+  { 
+
     // Require a post request
     $this->requirePostRequest();
 
@@ -47,9 +48,30 @@ class JobListingController extends BaseController
     $formBuilderHandle = craft()->request->getPost('jobListingHandle');
     if (!$formBuilderHandle) { throw new HttpException(404);}
 
+    // File Upload
+    $uploadedFile = UploadedFile::getInstanceByName('company_logo');
+    if ($uploadedFile) {
+      $folderId = 1;
+      $fileName = $uploadedFile->name;
+      $fileLocation = AssetsHelper::getTempFilePath(pathinfo($fileName, PATHINFO_EXTENSION));
+      move_uploaded_file($uploadedFile->tempName, $fileLocation);
+      $extension = IOHelper::getExtension($fileLocation);
+      if (!IOHelper::isExtensionAllowed($extension)) {
+        craft()->userSession->setNotice(Craft::t("Uploaded file not allowed."));
+        $this->redirectToPostedUrl();
+      }
+      $response = craft()->assets->insertFileByLocalPath($fileLocation, $fileName, $folderId, AssetConflictResolution::KeepBoth);
+      if ($response->isSuccess()) {
+        $fieldId = $response->getDataItem('fileId');
+      }
+    } else {
+      $fieldId = null;
+    }
+
+    
+
     // Create new listing
     $form = new JobListingModel;
-
 
     $form->title              = craft()->request->getPost('title');
     $form->description        = craft()->request->getPost('description');
@@ -57,22 +79,17 @@ class JobListingController extends BaseController
     $form->location           = craft()->request->getPost('location');
     $form->company_name       = craft()->request->getPost('company_name');
     $form->company_website    = craft()->request->getPost('company_website');
-    $form->company_logo       = craft()->request->getPost('company_logo');
+    $form->company_logo       = $fieldId;
     $form->application_url    = craft()->request->getPost('application_url');
     $form->listing_date       = craft()->request->getPost('listing_date');
     $form->expiration_date    = craft()->request->getPost('expiration_date');
 
 
 
-    if ($form->validate())
-    {
-        // It validates!
+    if ($form->validate()) {
       echo 'valid';
-    }
-    else
-    {
+    } else {
       craft()->userSession->setNotice(Craft::t("Couldn't submit."));
-      // Send the saved form back to the template
       craft()->urlManager->setRouteVariables(array(
         'listing' => $form
       ));

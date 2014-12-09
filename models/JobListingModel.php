@@ -18,16 +18,16 @@ class JobListingModel extends BaseElementModel
   protected function defineAttributes()
   {
     return array_merge(parent::defineAttributes(), array(
-      'title'             => array(AttributeType::Name, 'required' => true),
-      'description'       => array(AttributeType::Name, 'required' => true),
-      'type'              => AttributeType::Name,
-      'location'          => AttributeType::Name,
-      'company_name'      => AttributeType::Name,
+      'title'             => array(AttributeType::String, 'required' => true),
+      'description'       => array(AttributeType::String, 'required' => true),
+      'type'              => AttributeType::String,
+      'location'          => AttributeType::String,
+      'company_name'      => AttributeType::String,
       'company_website'   => AttributeType::Url,
-      'company_logo'      => AttributeType::Mixed,
+      'company_logo'      => AttributeType::Number,
       'application_url'   => AttributeType::Url,
-      'listing_date'      => AttributeType::Mixed,
-      'expiration_date'   => AttributeType::Mixed,
+      'listing_date'      => AttributeType::DateTime,
+      'expiration_date'   => AttributeType::DateTime,
     ));
   }
 
