@@ -3,8 +3,14 @@ namespace Craft;
 
 class JobListingVariable
 {
-  function listings()
+
+  function getAllListings()
   {
-    return craft()->elements->getCriteria('JobListing');
+    return craft()->jobListing->getAllListings();
+  }
+
+  function getJobBySlug($slug)
+  {
+    return craft()->jobListing->getJobBySlug($slug);
   }
 }

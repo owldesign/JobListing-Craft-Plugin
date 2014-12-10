@@ -17,7 +17,7 @@ class JobListingRecord extends BaseRecord
       'location'          => AttributeType::String,
       'company_name'      => AttributeType::String,
       'company_website'   => AttributeType::Url,
-      'company_logo'      => AttributeType::Number,
+      'company_logo'      => AttributeType::String,
       'application_url'   => AttributeType::Url,
       'listing_date'      => AttributeType::Name,
       'expiration_date'   => AttributeType::Name,

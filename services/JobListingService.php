@@ -5,14 +5,30 @@ class JobListingService extends BaseApplicationComponent
 {
 
   /**
-   * 
-   * Gell All Listings
-   * 
-   */
-  public function getAllListings()
+  * Returns all listings.
+  *
+  * @return array
+  */
+  public function getAllListings() 
   {
-    $listings = JobListingRecord::model()->findAll();
-    return $listings;
+    $listings = JobListingRecord::model()->findAll(array('order' => 't.dateCreated'));
+    return JobListingModel::populateModels($listings, 'id');
+  }
+
+  /**
+  * Returns job by slug id.
+  *
+  * @return array
+  */
+  public function getJobBySlug($slug) 
+  {
+    $listingRecord = JobListingRecord::model()->findByAttributes(array(
+      'id' => $slug
+    ));
+
+    if ($listingRecord) {
+      return JobListingModel::populateModel($listingRecord);
+    }
   }
 
 
@@ -45,10 +61,10 @@ class JobListingService extends BaseApplicationComponent
       $transaction = craft()->db->getCurrentTransaction() === null ? craft()->db->beginTransaction() : null;
       
       try {
-        $formRecord->save(false);
+        $listingRecord->save(false);
         
         if (!$form->id) {
-          $form->id = $formRecord->id;
+          $form->id = $listingRecord->id;
         } 
 
         if ($transaction !== null) {

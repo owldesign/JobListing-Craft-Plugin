@@ -6,20 +6,22 @@ class JobListingController extends BaseController
   
   protected $allowAnonymous = true;
 
-
   /**
    * View Form Entry
    */
   public function actionListingIndex()
   {
-    // Get the data
     $variables['listings'] = craft()->jobListing->getAllListings();
-    // Render the template!
     $this->renderTemplate('joblisting/index', $variables);
   }
 
 
-
+  /**
+  * View Listings in CP.
+  *
+  * @param array $variables
+  * @throws HttpException
+  */
   public function actionViewListing(array $variables = array())
   {
     $entry              = craft()->jobListing->getFormEntryById($variables['entryId']);
@@ -32,8 +34,10 @@ class JobListingController extends BaseController
 
 
   /**
-   * Save Form Entry
-   */
+  * Save Listing from front-end.
+  *
+  * @throws HttpException
+  */
   public function actionSaveListing()
   { 
 
@@ -66,9 +70,8 @@ class JobListingController extends BaseController
       }
     } else {
       $fieldId = null;
+      $fileName = null;
     }
-
-    
 
     // Create new listing
     $form = new JobListingModel;
@@ -79,7 +82,7 @@ class JobListingController extends BaseController
     $form->location           = craft()->request->getPost('location');
     $form->company_name       = craft()->request->getPost('company_name');
     $form->company_website    = craft()->request->getPost('company_website');
-    $form->company_logo       = $fieldId;
+    $form->company_logo       = $fileName;
     $form->application_url    = craft()->request->getPost('application_url');
     $form->listing_date       = craft()->request->getPost('listing_date');
     $form->expiration_date    = craft()->request->getPost('expiration_date');
@@ -87,7 +90,10 @@ class JobListingController extends BaseController
 
 
     if ($form->validate()) {
-      echo 'valid';
+      if (craft()->jobListing->saveListing($form)) {
+        craft()->userSession->setNotice(Craft::t('Listing Submitted.'));
+        $this->redirectToPostedUrl();
+      }
     } else {
       craft()->userSession->setNotice(Craft::t("Couldn't submit."));
       craft()->urlManager->setRouteVariables(array(
@@ -95,63 +101,12 @@ class JobListingController extends BaseController
       ));
     }
 
-
-    // if (craft()->jobListing->saveListing($form)) {
-    //   craft()->userSession->setNotice(Craft::t('Listing Submitted.'));
-    //   $this->redirectToPostedUrl();
-    // } else {
-    //   craft()->userSession->setNotice(Craft::t("Couldn't submit."));
-    //   // Send the saved form back to the template
-    //   craft()->urlManager->setRouteVariables(array(
-    //     'listing' => $form
-    //   ));
-      
-    // }
-    
-
-
-
-    // // Form data
-    // $data = serialize(craft()->request->getPost());
-
-    // // New form entry model
-    // $formBuilderEntry = new FormBuilder_EntryModel();
-
-    // // Set entry attributes
-    // $formBuilderEntry->formId   = $form->id;
-    // $formBuilderEntry->title    = $form->name;
-    // $formBuilderEntry->data     = $data;
-
-    // // Save it
-    // if (craft()->jobListing->saveFormEntry($formBuilderEntry)) {
-    //   // Time to make the notifications
-    //   if ($this->_sendEmailNotification($formBuilderEntry, $form)) {
-    //     // Set the message
-    //     if (!empty($form->successMessage)) {
-    //       $message = $form->successMessage;
-    //     } else {
-    //       $message =  Craft::t('Thank you, we have received your submission and we\'ll be in touch shortly.');
-    //     }
-    //     craft()->userSession->setFlash('success', $message);
-    //     $this->redirectToPostedUrl();
-    //   } else {
-    //     craft()->userSession->setError(Craft::t('We\'re sorry, but something has gone wrong.'));
-    //   }
-    //   craft()->userSession->setNotice(Craft::t('Entry saved.'));
-    //   $this->redirectToPostedUrl($formBuilderEntry);
-    // } else {
-    //   craft()->userSession->setNotice(Craft::t("Couldn't save the form."));
-    // }
-
-    // // Send the saved form back to the template
-    // craft()->urlManager->setRouteVariables(array(
-    //   'entry' => $formBuilderEntry
-    // ));
   }
 
+
   /**
-   * Delete Entry
-   */
+  * Delete Listings from CP.
+  */
   public function actionDeleteEntry()
   {
     $this->requirePostRequest();

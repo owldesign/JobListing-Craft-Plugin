@@ -24,7 +24,7 @@ class JobListingModel extends BaseElementModel
       'location'          => AttributeType::String,
       'company_name'      => AttributeType::String,
       'company_website'   => AttributeType::Url,
-      'company_logo'      => AttributeType::Number,
+      'company_logo'      => AttributeType::String,
       'application_url'   => AttributeType::Url,
       'listing_date'      => AttributeType::DateTime,
       'expiration_date'   => AttributeType::DateTime,
